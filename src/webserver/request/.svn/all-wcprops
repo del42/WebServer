@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/43/trunk/WebServer/src/webserver/request
+END
+Request.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/42/trunk/WebServer/src/webserver/request/Request.java
+END
+HttpReqMsg.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/43/trunk/WebServer/src/webserver/request/HttpReqMsg.java
+END

@@ -1,0 +1,200 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package webserver.response;
+
+import java.io.File;
+import java.net.Socket;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import webserver.CGIHandler;
+import webserver.configuration.ConfigVars;
+import webserver.request.HttpReqMsg;
+
+public class Response {
+	HttpReqMsg reqMsg;
+	Socket socket;
+	HttpRespMsg respMsg;
+	String path;
+	boolean cgiScript;
+
+	public Response(HttpReqMsg reqMsg, Socket socket) {
+		this.reqMsg = reqMsg;
+		this.socket = socket;
+		this.cgiScript = false;
+		respMsg = new HttpRespMsg();
+	}
+
+	public HttpRespMsg buildResponse() {
+		// set default headers for every response
+		respMsg.setVersion(reqMsg.getVersion());
+		respMsg.setHeader("Server", "CSC 867");
+		respMsg.setHeader("Date", getDate());
+
+		// check authentication
+		checkAuthentication();
+
+		// parse the uri in the request to extract the resource path
+		parseURI(reqMsg.getURI());
+
+		if (!cgiScript) {
+			// check the method in the request
+			String methodName = reqMsg.getMethodName();
+			if (methodName.equals("GET")) {
+				getMethod();
+			} else {
+				if (methodName.equals("PUT")) {
+					putMethod();
+				} else {
+					if (methodName.equals("HEAD")) {
+						headMethod();
+					}
+				}
+			}
+		} else {
+			CGIHandler handler = new CGIHandler(socket, reqMsg, respMsg);
+			respMsg = handler.buildProcess();
+		}
+		return respMsg;
+	}
+
+	public void checkAuthentication() {
+
+	}
+
+	public void parseURI(String uri) {
+		String documentRoot = ConfigVars.getDocumentRoot();
+		String topDir;
+
+		// extract the URI in the GET method with parameters
+		if (uri.contains("?")) {
+			int index = uri.indexOf("?");
+			uri = uri.substring(0, index);
+		}
+
+		// find the top directory to check for alias and script alias
+		try {
+			String[] temp = uri.substring(1).split("/");
+			topDir = "/" + temp[0];
+
+		} catch (IndexOutOfBoundsException e) {
+			topDir = uri;
+		}
+
+		// set the path for the resource requested by the client
+		if (ConfigVars.getScriptAlias(topDir) != null) {
+			path = uri.replace(topDir, ConfigVars.getScriptAlias(topDir));
+			cgiScript = true;
+
+		} else {
+			if (ConfigVars.getAlias(topDir) != null) {
+				path = uri.replace(topDir, ConfigVars.getAlias(topDir));
+			} else {
+
+				if (uri == null || uri.equals("/")) {
+					for (int i = 0; i < ConfigVars.getDirectoryIndex().size(); i++) {
+						path = documentRoot
+								+ System.getProperty("file.separator")
+								+ ConfigVars.getDirectoryIndex().get(i);
+						if (new File(path).exists())
+							break;
+					}
+				} else {
+					path = documentRoot + uri;
+				}
+			}
+		}
+	}
+
+	public void getMethod() {
+		boolean updated = true;
+		String documentRoot = ConfigVars.getDocumentRoot();
+		File resource = new File(path);
+		if (!resource.exists()) {
+			respMsg.setStatusCode("404");
+			respMsg.setDescription("Not Found");
+			respMsg.setBody(new File(documentRoot + "/404.html"));
+		} else {
+			updated = checkCache(resource);
+			if (updated) {
+				String name = resource.getName();
+				String type = name.substring(name.indexOf(".") + 1);
+				long length = resource.length();
+				
+				respMsg.setHeader("Content-Type", ConfigVars.getMIME(type));
+				respMsg.setHeader("Content_length", Long.toString(length));
+				respMsg.setStatusCode("200");
+				respMsg.setDescription("OK");
+				respMsg.setBody(resource);
+			} else {
+				if (!updated) {
+					long lastModifiedDate = resource.lastModified();
+					SimpleDateFormat sdf = new SimpleDateFormat("EEE dd MMM yyyy HH:mm:ss z");										
+					respMsg.setHeader("Last-Modified", sdf.format(new Date(lastModifiedDate)));
+					respMsg.setStatusCode("304");
+					respMsg.setDescription("Not Modified");
+				}
+			}
+		}
+
+	}
+
+	public boolean checkCache(File resource) {
+		boolean updated = true;
+		long lastModifiedDate;
+		long modifiedSince = System.currentTimeMillis();
+		
+		String modSince = reqMsg.getHeader("If-Modified-Since");
+		if ( modSince!= null) {
+			lastModifiedDate = resource.lastModified();
+		    SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+		    try {
+				modifiedSince = (sdf.parse(modSince)).getTime();
+			} catch (ParseException e) {
+				System.out.println("Parsing Date Error: " + e.getMessage());
+			}
+		    
+		    if (modifiedSince >= lastModifiedDate) {
+		    	updated = false;
+		    }
+			
+		}
+		return updated;
+	}
+
+	public void putMethod() {
+
+	}
+
+	public void headMethod() {
+		String documentRoot = ConfigVars.getDocumentRoot();
+		File resource = new File(path);
+		if (!resource.exists()) {
+			respMsg.setStatusCode("404");
+			respMsg.setDescription("Not Found");
+			respMsg.setBody(new File(documentRoot + "/404.html"));
+
+		} else {
+			String name = resource.getName();
+			String type = name.substring(name.indexOf(".") + 1);
+			long length = resource.length();
+			respMsg.setHeader("Content-Type", ConfigVars.getMIME(type));
+			respMsg.setHeader("Content_length", Long.toString(length));
+			respMsg.setStatusCode("200");
+			respMsg.setDescription("OK");
+
+		}
+	}
+
+	private String getDate() {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		return dateFormat.format(date);
+	}
+
+}

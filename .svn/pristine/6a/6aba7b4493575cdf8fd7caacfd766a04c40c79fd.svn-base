@@ -1,0 +1,17 @@
+<html>
+<body>
+
+<h2>Japanese Tea garden</h2>
+<img border="0" src="images/1.jpg" width="300" height="200" />
+
+
+<h1>Lets Watch youtube </h1>
+<iframe width="420" height="345"
+src="http://www.youtube.com/embed/XGSy3_Czz8k">
+</iframe>
+
+<p>If you cannot hear the sound, your computer or browser does not support the sound format.</p>
+<p>Or, you have your speakers turned off.</p>
+
+</body>
+</html>

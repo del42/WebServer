@@ -1,0 +1,125 @@
+<html>
+<head>
+<title>Test Cases of CSC 667/867</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<SCRIPT language="JavaScript">
+<!-- Script courtesy of http://www.web-source.net - Your Guide to Professional Web Site Design and Development
+function open1() 
+{
+var open1 = window.open('images/largefile.jpg','','scrollbars=yes,height=1200,width=1600,resizable=yes');
+var open2 = window.open('smallfile.html','','scrollbars=yes,height=600,width=800,resizable=yes');
+
+}
+
+function open2() 
+{
+var open2 = window.open('small.html','','scrollbars=yes,height=600,width=800,resizable=yes');
+}
+// -->
+</SCRIPT>
+</head>
+
+<h1>Test Cases of CSC 667/867 Web Server Project </h1>
+<hr>
+<h2>Part 1 - Testing</h2>
+<h3><font color="#FF0000">You need to use the &quot;httpd.conf&quot; file provided in the &quot;conf&quot; folder of the test case in order to test your Web Server. You should place this index.html in the DocumentRoot (htodcs) directory. 
+</font></h3>
+<h3>Images</h3>
+<ol>
+    <li value=1><img src="images/image1.gif">&nbsp;<font color="red"><b>GIF test</b></font></li>
+	<li value=2><img src="images/academic.jpg">&nbsp;<font color="red"><b>JPG test</b></font></li>
+  
+</ol>
+<hr>
+<h3>Documents</h3>
+<ol>
+    <li value=3><a href="/"><b>Default file</b> of the document root directory</a></li>
+	<li value=4><a href="/ab1/ab1.html">Document in level 1 using absolute path</a></li>
+    <li value=5><a href="/ab1/ab2/ab2.html">Document in level 2 using absolute path</a></li>
+    <li value=6><a href="/da1/lvl1.html">Document alias /da1/ in level 1</a></li>
+	<li value=7><a href="/alias1/lvl2/lvl2.html">Document alias /alias1/ in level 2</a></li>
+	 <li value=8><a href="/alias2/lvl1.html">Document alias /alias2/ in level 1</a></li>
+    <li value=9><a href="/da2/lvl2/lvl2.html">Document alias /da2/ in level 2</a></li>	
+    <li value=10><a href="/ldir/hd.log">Log file</a></li>
+	<li value=11><a href="/logs/access.log">Alternate Log File</a></li>
+	<li value=12><a href="plaintext.txt">Plain Text File</a></li>
+	<li value=13><a href="wordtest.doc">Word Document</a></li>
+	<li value=14><a href="exceltest.xls">Excel Document</a></li>
+	<li value=15><a href="pdftest.pdf">PDF Document</a></li>
+	
+	</ol>
+<hr>
+<h2>Part 2 - Testing</h2>
+<h3>CGI Test</h3>
+<ol>
+    <li value=16><a href="/sa1/showcgi.pl">Script Alias /sa1</a> 
+	<li value=17><a href="/sa2/showcgi.pl">Script Alias /sa2</a>
+	<li value=18><a href="/cgi-bin/showcgi.pl">Script Alias /cgi-bin</a>
+	<li value=19><a href="/cgi-bin2/showcgi.pl">Script Alias /cgi-bin2</a>
+	<li value=20><a href="showcgi.html">showcgi.html</a></li>
+	</ol>
+	
+	<b>Sample inputs using GET</b>
+	 <br>
+      <form action="/script/showcgi.pl?filename=u1.html" method="GET">
+        Enter string 
+        <input type="text" size=30 name="text_control1" value="method GET">
+        <input type="checkbox" name="checkbox_control1" checked>
+        and click here 
+        <p> 
+          <input type="submit" value="Get" name="submit_button1">
+      </form>
+     
+	<br>
+	<br>
+	<b>Sample inputs using POST</b>
+	<br>
+	
+      <form action="/sa1/showcgi.pl" method="POST">
+        Enter string 
+        <input type="text" size=30 name="text_control2" value="method POST">
+        <input type="checkbox" name="checkbox_control2" checked>
+        and click here 
+        <p> 
+          <input type="submit" value="Post" name="submit_button2">
+      </form>
+     <hr>
+	  
+<h3> Authentication Test </h3>
+<ol>
+<li value=21><a href="/protected/index.html">Go to All Users Secure Directory</a>
+&nbsp;User/Password combination:&nbsp;&nbsp;<b>csc667 / csc1 </b>
+</li>
+
+<li value=22><a href="/protected_wmac01/index.html">Go to Selected Users Directory</a>
+&nbsp;User/Password combination:&nbsp;&nbsp;<b>wmac01 / csc3 </b>
+</li>
+
+</ol>
+
+
+
+
+<hr>
+     <h3>Multi Threading Test</h3>
+      <p><b>Simultaneous Request Test (only test if multiple thread is supported)</b></p>
+<ol>
+    <li value=23>To test multi-threading, please click on the<a href="images/largefile.jpg" target="_blank">&nbsp;large image file</a>
+</a><br>
+   Then click on the<a href="smallfile.html" target="_blank">&nbsp;small html file</a>
+	<li value=24><font face="Arial, Helvetica" size="2"><A href="javascript:open1()">Click Here</A> 
+	to use JavaScript to test multi-threading<br>
+&nbsp;</font>
+</ol>
+
+<hr>
+<h3>Errors Test</h3>
+<ol>
+<li value=25><a href="notfoun.html">404 - Page Not Found</a></li>
+<li value=26><a href="/cgi-bin2/birthday.pl">500 - Internal Server Error</a></li>
+
+</ol>
+
+</body>
+</html>
+

@@ -1,0 +1,187 @@
+package webserver.configuration;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+public class HttpdConf {
+	
+
+	private BufferedReader configFile;
+	private boolean hasMore;
+	private String nextLine;
+
+	public HttpdConf(String cFile) {
+		try {
+			this.configFile = new BufferedReader(new FileReader(cFile));
+		} catch (FileNotFoundException ex) {
+			System.out.println("httpd.conf file was not found!");
+			System.exit(1);
+		}
+		hasMore = true;
+	}
+
+	public void processConfigFile() {
+		while (hasMoreVar()) {
+			getNextVar();
+		}
+	}
+
+	private boolean hasMoreVar() {
+		try {
+			nextLine = configFile.readLine();
+			if (nextLine == null)
+				hasMore = false;
+		} catch (IOException e) {
+			System.out.println("Reading File Error: " + e.getMessage());
+			System.exit(1);
+		}
+		return hasMore;
+	}
+
+	private void getNextVar() {
+		String temp[]; // store the tokens
+		String delimiter = "\\s+";
+		nextLine = nextLine.trim();
+		if (!nextLine.startsWith("#") && nextLine.length() != 0) {
+			try {
+				temp = nextLine.split(delimiter);
+				setConfVars(temp);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				System.out.println("Variable Error: " + nextLine
+						+ " has no value!");
+			}
+		}
+	}
+
+	private void setConfVars(String[] varInfo) {
+
+		// remove "\"" from the httpd.conf variable configurations
+		for (int i = 0; i < varInfo.length; i++) {
+			if (varInfo[i].contains("\"")) {
+				varInfo[i] = varInfo[i].replace("\"", "").trim();
+			}
+		}
+
+		if (!varInfo[0].equals("Alias") && !varInfo[0].equals("ScriptAlias")
+				&& !varInfo[0].equals("</Directory>")
+				&& !varInfo[0].equals("ServerAdmin")
+				&& !varInfo[0].equals("DirectoryIndex")
+				&& !varInfo[0].equals("require")
+				&& !varInfo[0].equals("CgiHandler")
+				&& !varInfo[0].equals("AddIconByType")
+				&& !varInfo[0].equals("AddIcon")) {
+			try {
+				if (varInfo.length > 2) {
+					for (int i = 2; i < varInfo.length; i++) {
+						varInfo[1] = varInfo[1] + " " + varInfo[i];
+					}
+				}
+				if (!varInfo[0].equals("<Directory")) {
+					Method method = Class.forName(
+							"webserver.configuration.ConfigVars").getMethod(
+							"set" + varInfo[0], String.class);
+					method.invoke(null, varInfo[1]);
+				} else {
+					if (varInfo[0].equals("<Directory")) {
+						String dir = varInfo[1].substring(0,
+								varInfo[1].indexOf("/>"));
+						ConfigVars.setDirectory(dir);
+					}
+				}
+			} catch (IllegalAccessException ex) {
+
+			} catch (IllegalArgumentException ex) {
+
+			} catch (InvocationTargetException ex) {
+
+			} catch (ClassNotFoundException ex) {
+
+			} catch (NoSuchMethodException e) {
+				System.out.println(e.getMessage());
+				System.exit(1);
+			} catch (SecurityException ex) {
+			}
+
+		} else {
+			if (varInfo[0].equals("Alias")) {
+				if (varInfo.length > 3) {
+					for (int i = 3; i < varInfo.length; i++) {
+						varInfo[2] = varInfo[2] + " " + varInfo[i];
+					}
+				}
+				ConfigVars.putAlias(varInfo[1], varInfo[2]);
+			} else {
+				if (varInfo[0].equals("ScriptAlias")) {
+					if (varInfo.length > 3) {
+						for (int i = 3; i < varInfo.length; i++) {
+							varInfo[2] = varInfo[2] + " " + varInfo[i];
+						}
+					}
+					ConfigVars.putScriptAlias(varInfo[1], varInfo[2]);
+				} else {
+					if (varInfo[0].equals("ServerAdmin")) {
+						String[] mail;
+						try {
+							mail = varInfo[1].split(",");
+
+							for (int i = 0; i < mail.length; i++) {
+								ConfigVars.setServerAdmin(mail[i].trim());
+							}
+
+						} catch (ArrayIndexOutOfBoundsException e) {
+							System.out.println("Variable Error: " + varInfo[0]
+									+ " has no value!");
+						}
+					} else {
+						if (varInfo[0].equals("DirectoryIndex")) {
+							for (int i = 1; i < varInfo.length; i++) {
+								ConfigVars.setDirectoryIndex(varInfo[i]);
+							}
+						} else {
+							if (varInfo[0].equals("require")) {
+								if (varInfo[1].equals("user")
+										|| varInfo[1].equals("group")) {
+									String[] users;
+									try {
+										users = varInfo[2].split(",");
+										for (int i = 0; i < users.length; i++) {
+											ConfigVars.setRequire(users[i]
+													.trim());
+										}
+									} catch (ArrayIndexOutOfBoundsException e) {
+										System.out.println("Variable Error: "
+												+ varInfo[0] + " " + varInfo[1]
+												+ " has no value!");
+									}
+								} else {
+									ConfigVars.setRequire(varInfo[1]);
+								}
+							} else {
+								if (varInfo[0].equals("CgiHandler")) {
+									ConfigVars.putCgiHandler(varInfo[2],
+											varInfo[1]);
+								} else {
+									if (varInfo[0].equals("AddIcon")) {
+										for (int i = 2; i < varInfo.length; i++) {
+											ConfigVars.putAddIcon(varInfo[i],
+													varInfo[1]);
+										}
+									} else {
+										if (varInfo[0].equals("AddIconByType")) {
+											ConfigVars.putAddIconByType(
+													varInfo[2], varInfo[1]);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

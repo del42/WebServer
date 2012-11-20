@@ -1,0 +1,44 @@
+
+
+.tabs li
+{
+	display: inline;
+}
+
+.tabs li a
+{
+	padding:0px 13px 11px 12px;
+	border:1px solid #cccccc;
+	font-family:'PT Sans',sans-serif;
+	font-size:13px;
+	color:#666666;
+	font-weight:300;
+	text-transform:uppercase;
+}
+.tab1 .tab
+{
+    border-bottom:40px;
+}
+.tabs .tab-current
+{
+	padding: 37px 13px 12px 12px;
+	border-bottom:0px;
+	background:#ffffff;
+}
+
+.tabsContent
+{
+	
+	box-shadow: 3px 3px 5px #cccccc;
+	background:#ffffff;
+	padding:20px 20px 20px 20px;
+	color:#666666;
+        height: 460px;
+        width: 600px;
+}
+
+ul.tabs
+{
+	margin: 10px 10px 10px 10px;
+}
+

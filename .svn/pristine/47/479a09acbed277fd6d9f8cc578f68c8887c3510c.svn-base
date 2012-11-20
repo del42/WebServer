@@ -1,0 +1,13 @@
+<html>
+	<head>
+		<title> Home Page </title>
+	</head>
+	<body>
+		<h2> Alcatraz </h2>
+        <img src = "images/2.jpg" width = "500" height = "400" border = "0"/> 
+        
+        <h2>Japanese Tea garden</h2>
+        <img border="0" src="images/1.jpg" alt="Pulpit rock" width="500" height="400" />
+
+	</body>
+</html>

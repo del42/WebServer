@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/51/trunk/WebServer/src/webserver
+END
+CGIHandler.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/28/trunk/WebServer/src/webserver/CGIHandler.java
+END
+WebServer.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/51/trunk/WebServer/src/webserver/WebServer.java
+END
+Environment.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/11/trunk/WebServer/src/webserver/Environment.java
+END
+HttpMsg.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/22/trunk/WebServer/src/webserver/HttpMsg.java
+END

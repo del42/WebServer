@@ -1,0 +1,34 @@
+Content-type: text/html
+
+<HEAD>
+<TITLE>Show CGI Inputs</TITLE>
+</HEAD><BODY><h1>Show CGI Inputs:</h1><hr>
+<h2>Command Line Arguments:</h2>
+arg1: another+query<BR>
+<HR><h2>Environment Variables:</h2>
+SERVER_SOFTWARE = CSC867/1.0<BR>
+SERVER_NAME = SFSUCSC867<BR>
+GATEWAY_INTERFACE = CGI/1.1 <BR>
+SERVER_PROTOCOL = HTTP/1.1<BR>
+SERVER_PORT = 4008<BR>
+REQUEST_METHOD = GET<BR>
+HTTP_ACCEPT =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8<BR>
+PATH_INFO = /extra-info<BR>
+PATH_TRANSLATED = /Users/Del/NetbeansProjects/WebServer/htdocs/extra-info<BR>
+SCRIPT_NAME = showcgi.pl<BR>
+QUERY_STRING = another+query<BR>
+REMOTE_HOST = localhost<BR>
+REMOTE_ADDR = 0:0:0:0:0:0:0:1%0<BR>
+REMOTE_USER = <BR>
+CONTENT_TYPE = <BR>
+CONTENT_LENGTH = <BR>
+HTTP_REFERER =  http://localhost:4008/showcgi.html<BR>
+HTTP_USER_AGENT =  Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.151 Safari/535.19<BR>
+HTTP_COOKIE = <BR>
+<hr>
+<h2>Standard Input:</h2>
+There is no input in STDIN when using GET method.<BR>
+<hr><h2>Name/Value pairs extracted</h2>
+no name/value pairs in input
+<hr><h2>Name/Value pairs decoded</h2>
+</BODY><HTML>

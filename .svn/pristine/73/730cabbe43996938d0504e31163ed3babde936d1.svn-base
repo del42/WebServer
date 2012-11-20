@@ -1,0 +1,148 @@
+package webserver;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
+import webserver.request.Request;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import webserver.configuration.ConfigVars;
+import webserver.configuration.MIME;
+import webserver.configuration.HttpdConf;
+import webserver.request.HttpReqMsg;
+import webserver.response.*;
+
+public class WebServer {
+
+	private ServerSocket serverSocket;
+	private Socket socket = null;
+	private static int tID = 0;
+	private static Thread[] thread;
+
+	public WebServer() {
+		// Parsing httpd.conf and mime.types files as the web server starts
+		String userDir = System.getProperty("user.dir");
+		String sep = System.getProperty("file.separator");
+
+		System.out.println("Configuring the web server ..." + "\n");
+		new HttpdConf(userDir + sep + "Config" + sep + "httpd.conf")
+				.processConfigFile();
+		new MIME(userDir + sep + "Config" + sep + "mime.types")
+				.processMIMEFile();
+	}
+
+	public void webServerReady() throws InterruptedException {
+		int maxThread = Integer.parseInt(ConfigVars.getMaxThread());
+		thread = new Thread[maxThread];
+		try {
+			serverSocket = new ServerSocket(Integer.parseInt(ConfigVars
+					.getListen()));
+			System.out.println("Socket Opened on Port "
+					+ ConfigVars.getListen() + ".");
+		} catch (IOException e) {
+			System.out.println("Failed to open socket on port "
+					+ ConfigVars.getListen() + ".");
+			System.exit(1);
+		}
+		while (true) {
+			try {
+				socket = serverSocket.accept();
+				tID++;
+				thread[tID] = new Thread(new ReqThread(socket, tID));
+				thread[tID].start();
+
+			} catch (IOException e) {
+				System.out.println("Accept Failed on: "
+						+ ConfigVars.getListen());
+				System.exit(1);
+			}
+
+		}
+	}
+
+	public static void main(String[] args) throws IOException,
+			InterruptedException {
+		WebServer ws = new WebServer();
+		ws.webServerReady();
+
+	}
+}
+
+class ReqThread implements Runnable {
+
+	private Socket socket;
+	private Request request;
+	private HttpReqMsg reqMsg;
+	private HttpRespMsg respMsg;
+	private BufferedReader req;
+	BufferedOutputStream out;
+	private int tID;
+
+	public ReqThread(Socket clientSocket, int id) {
+		this.socket = clientSocket;
+		this.tID = id;
+
+		try {
+			req = new BufferedReader(new InputStreamReader(
+					socket.getInputStream()));
+			out = new BufferedOutputStream(socket.getOutputStream());
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+	}
+
+	public void run() {
+		request = new Request(req);
+		reqMsg = request.parseRequest();
+		respMsg = new Response(reqMsg, socket).buildResponse();
+		
+		sendResponse();
+	}
+
+	public void sendResponse() {
+		try {
+			BufferedOutputStream out = new BufferedOutputStream(
+					socket.getOutputStream());
+			PrintWriter writer = new PrintWriter(out, true);
+
+			// writes request's first line
+			writer.println(respMsg.getVersion() + " " + respMsg.getStatusCode()
+					+ " " + respMsg.getDescription());
+
+			// writes the headers
+			Iterator<Entry<String, String>> it = respMsg.getHeaders()
+					.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<String, String> pairs = (Map.Entry<String, String>) it
+						.next();
+				writer.println(pairs.getKey() + ": " + pairs.getValue());
+				it.remove();
+			}
+			writer.println("");
+			// write file
+			if (respMsg.getBody() != null) {
+				byte[] body = new byte[(int) respMsg.getBody().length()];
+				FileInputStream in = new FileInputStream(respMsg.getBody());
+				BufferedInputStream bufferedIn = new BufferedInputStream(in);
+				bufferedIn.read(body, 0, body.length);
+				// OutputStream os = sock.getOutputStream();
+				System.out.println(tID + " is sending..." + "\n");
+				out.write(body, 0, body.length);
+				out.flush();
+
+			}
+			socket.close();
+		} catch (IOException ex) {
+			System.out.println("Access Failed: " + ConfigVars.getListen());
+		}
+	}
+
+}

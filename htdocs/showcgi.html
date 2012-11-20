@@ -1,0 +1,26 @@
+<html><head><title>Inputs to showcgi.pl</title></head>
+<body>
+<h2>Some sample inputs to the showcgi.pl script</h2>
+<A HREF="/cgi-bin/showcgi.pl">&lt;A HREF=/cgi-bin/showcgi.pl&gt;&nbsp;&nbsp;No extra path and no arguments</a><br>
+
+<A HREF="/cgi-bin/showcgi.pl/extra-info">&lt;A HREF=/cgi-bin/showcgi.pl/extra-info&gt;&nbsp;&nbsp;With extra path and no arguments</a><br>
+
+<A HREF="/cgi-bin/showcgi.pl?a+query">&lt;A HREF=/cgi-bin/showcgi.pl?a+query&gt;&nbsp;&nbsp;No extra path but with arguments</a><br>
+
+<A HREF="/cgi-bin/showcgi.pl/extra-info?another+query">&lt;A HREF=/cgi-bin/showcgi.pl/extra-info?another+query&gt;With extra path and arguments</a><br>
+
+<h4>Sample inputs using GET</h4>
+<FORM ACTION="/cgi-bin/showcgi.pl" METHOD="GET">
+Enter string <INPUT TYPE="text" SIZE=30 NAME="string">
+<INPUT TYPE="checkbox" NAME="checkbox" VALUE="on"> and click here <P>
+<INPUT TYPE="submit" VALUE="submit">
+</FORM>
+
+<h4>Sample inputs using POST</h4>
+<FORM ACTION="/cgi-bin/showcgi.pl" METHOD="POST">
+Enter string <INPUT TYPE="text" SIZE=30 NAME="string">
+<INPUT TYPE="checkbox" NAME="checkbox" VALUE="on"> and click here <P>
+<INPUT TYPE="submit" VALUE="submit">
+</FORM>
+
+</body></html>

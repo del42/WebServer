@@ -1,0 +1,35 @@
+package webserver;
+
+import java.util.HashMap;
+
+public abstract class HttpMsg {
+    protected String version = "";
+    protected HashMap<String, String> headers;
+    
+
+    public HttpMsg() {
+        headers = new HashMap<String, String>();
+        
+    }
+    
+    public void setVersion(String v ) {
+        version = v;
+    }
+    
+    public String getVersion() {
+        return version;
+    }
+    
+    public void setHeader(String hName, String hValue) {
+        headers.put(hName, hValue);
+    }
+    
+    public String getHeader(String hName) {
+        return headers.get(hName);
+    }
+    
+    public HashMap<String, String> getAllHeaders() {
+    	return headers;
+    }
+    
+}

@@ -1,0 +1,108 @@
+package webserver;
+
+import java.net.ServerSocket;
+import java.util.*;
+import java.util.Map.Entry;
+
+import webserver.configuration.ConfigVars;
+import webserver.request.HttpReqMsg;
+
+
+public class Environment {
+	
+	private HttpReqMsg request;
+	private ServerSocket socket;
+	private ArrayList<String> environments;
+	
+	public Environment(HttpReqMsg request, ServerSocket socket) {	
+		this.request = request;
+		this.socket = socket;
+		environments = new ArrayList<String>();
+		setEnvVar();
+	}
+	
+	private void setEnvVar () {
+		// Non-request-specific environment variables
+		environments.add("SERVER_SOFTWARE="+ "");
+		environments.add("SERVER_NAME="+ "CSC867");
+		environments.add("GATEWAY_INTERFACE=" + "");
+		
+		// Request-specific environment variables
+		environments.add("SERVER_PROTOCOL=" + request.getVersion());
+		environments.add("SERVER_PORT=" + ((Integer) socket.getLocalPort()).toString());
+		environments.add("REQUEST_METHOD=" + request.getMethodName());
+		
+		// Request URI
+		String uri = request.getURI();
+		String args;
+		String scriptName;
+		
+		if (uri.contains("?")) {
+            int index = uri.indexOf("?");
+            args = uri.substring(index + 1);
+            uri = uri.substring(0, index);  
+            environments.add("QUERY_STRING=" + args);
+		}
+		
+		if (uri.contains("extra")) {
+			String extra;
+			int index = uri.indexOf("extra");
+			scriptName = uri.substring(0, index-1);
+			extra = uri.substring(index - 1);
+			environments.add("PATH_INFO=" + extra);
+			environments.add("PATH_TRANSALTED=" + ConfigVars.getDocumentRoot() + extra);
+		} else {
+			scriptName = uri;
+		}
+		
+		environments.add("SCRIPT_NAME=" + scriptName);
+		
+		
+        
+		
+		environments.add("REMOTE_HOST="+"????????");
+		/*String[] temp = args.split("&");
+           
+        ArrayList<Param> params = new ArrayList<Param>();
+        for (int i = 0; i < temp.length; i++) {
+            String pair[];
+            pair = temp[i].split("=");
+            params.add(new Param(pair[0],pair[1]));
+       }*/
+		
+		// Request Headers
+		HashMap<String, String> headers = request.getAllHeaders();
+		Iterator<Entry<String, String>> it = headers.entrySet().iterator();
+		while(it.hasNext()) {
+			Map.Entry<String, String> pair = (Map.Entry<String, String>) it.next();
+			String tempName = pair.getKey().toUpperCase();
+			if (tempName.contains("-")) {
+				tempName.replace("-", "_");
+			}
+			tempName = "HTTP_" + tempName;
+			environments.add(tempName + "=" + pair.getValue());
+		}
+	}
+	
+	
+	
+}
+
+/*class envPair {
+	private String name;
+	private String value;
+	
+	envPair(String name, String value) {
+		this.name = name;
+		this.value = value;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String getValue(){
+		return value;
+	}
+	
+}*/

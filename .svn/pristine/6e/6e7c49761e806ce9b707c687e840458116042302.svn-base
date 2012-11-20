@@ -1,0 +1,253 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package webserver.configuration;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class ConfigVars {
+    
+    private static String serverRoot = "";
+    private static String documentRoot = "";
+    private static String logFile = "";
+    private static String upload = "";
+    private static String listen = "";
+    private static String maxThread = "";
+    private static String cacheEnabled = "";
+    private static String persistentConnection = "";
+    private static String tempDirectory = "";
+    private static String defaultIcon = "";
+    private static ArrayList<String> serverAdmin = new ArrayList<String>();
+    private static ArrayList <String> directoryIndex = new ArrayList<String>();
+    private static ArrayList<Directory> directory = new ArrayList<Directory>(); 
+    private static HashMap<String, String> alias = new HashMap<String, String>();
+    private static HashMap<String, String> scriptAlias = new HashMap<String, String>();
+    private static HashMap<String,String> cgiHandler = new HashMap<String, String>();
+    private static HashMap<String, String> addIconByType = new HashMap<String, String>();
+    private static HashMap<String, String> addIcon = new HashMap<String, String>();
+    
+    private static HashMap<String, String> mimeTypes = new HashMap<String, String>();
+    
+    public static void setServerRoot(String sRoot){
+        serverRoot = sRoot;
+    }
+    
+    public static void setServerAdmin(String sAdmin) {
+        serverAdmin.add(sAdmin) ;
+    }
+    
+    public static void setUpload(String upld){
+        upload = upld;
+    }
+    
+    public static void setListen(String lstn){
+        listen = lstn;
+    }
+    
+    public static void setMaxThread(String max){
+        maxThread = max;
+    }
+    
+    public static void setCacheEnabled(String cache){
+        cacheEnabled = cache;
+    }
+    
+    public static void setPersistentConnection(String connection){
+        persistentConnection = connection;
+    }
+    
+    public static void setDocumentRoot(String docRoot){
+        documentRoot = docRoot;
+    }
+    
+    public static void setLogFile(String lFile){
+        logFile = lFile;
+    }
+    
+    
+    public static void setTempDirectory(String tempDir){
+       tempDirectory = tempDir;
+    }
+    
+    public static void setDirectoryIndex(String defaultFile){
+        directoryIndex.add(defaultFile);
+    }
+    
+    public static void setDefaultIcon(String path){
+        defaultIcon = path;
+    }
+    
+    public static void setDirectory(String dir){
+          Directory eachDirectory = new Directory(dir);
+          directory.add(eachDirectory);
+    }
+    
+    public static void setAuthType(String type) {
+        directory.get(directory.size()-1).setAuthType(type);
+    }
+    
+    public static void setAuthUserFile (String authFile) {
+    	directory.get(directory.size()-1).setAuthUserFile(authFile);
+    }
+    
+    public static void setRequire(String req) {
+    	directory.get(directory.size()-1).setRequire(req);
+    }
+    
+    public static void setAuthName(String name) {
+    	directory.get(directory.size()-1).setAuthName(name);
+    }
+    
+    public static String getServerRoot(){
+      return  serverRoot ;
+    }
+    
+    public static ArrayList<String> getServerAdmin() {
+        return serverAdmin;
+    }
+    
+    public static String getListen(){
+        return listen;
+    }
+    
+    public static String getMaxThread() {
+        return maxThread;
+    }
+    
+    public static String getCacheEnabled(){
+        return cacheEnabled;
+    }
+    
+    public static String getPersistentConnection(){
+        return persistentConnection;
+    }
+    public static String getDocumentRoot(){
+        return documentRoot;
+    }
+    
+    public static String getUpload() {
+        return upload;
+    }
+    
+    public static String getLogFile(){
+        return logFile;
+    }    
+    
+    public static String getTempDirectory(){
+        return tempDirectory ;
+    }
+    
+    public static ArrayList<String> getDirectoryIndex(){
+        return directoryIndex;
+    }
+    
+    public static String getDefaultIcon() {
+        return defaultIcon;
+    }
+    
+    public static ArrayList<Directory> getDirectory(){
+        return  directory;
+    }
+    
+    public static void putAlias(String path1, String path2) {
+        alias.put(path1, path2);
+    }
+    
+    public static String getAlias(String path) {
+        return alias.get(path);
+    }
+    
+    public static void putScriptAlias(String path1, String path2) {
+        scriptAlias.put(path1, path2);
+    }
+    
+    public static String getScriptAlias(String path) {
+        return scriptAlias.get(path);
+    }
+    
+    
+    public static void putCgiHandler(String ext, String path ){
+        cgiHandler.put(ext, path);
+    }
+    
+    public static String getCgiHandler(String ext){
+        return cgiHandler.get(ext);
+    }
+    
+    public static void putAddIconByType(String type, String path){
+        addIconByType.put(type, path);
+    }
+    
+    public static String getAddIconByType(String path){
+        return addIconByType.get(path);
+    }
+    
+    public static void putAddIcon(String ext, String path ){
+        addIcon.put(ext, path);
+    }
+    
+    public static String getAddIcon(String ext){
+        return addIcon.get(ext);
+    }
+    
+    public static void putMIME(String ext, String type) {
+       mimeTypes.put(ext, type);
+    }
+    
+    public static String getMIME(String ext) {
+        return mimeTypes.get(ext);
+    }
+}
+
+
+class Directory {
+	private String directory = "";
+	private String authName = "";
+	private ArrayList<String> require = new ArrayList<String>();  
+	private String authType = "";
+    private String authUserFile = "";
+    
+    public Directory(String dir) {
+    	this.directory = dir;
+    }
+    
+    public void setAuthType(String type) {
+        authType = type;
+    }
+    
+    public  void setAuthUserFile (String authFile) {
+        authUserFile = authFile;
+    }
+    
+    public void setRequire(String req) {
+        require.add(req);
+    }
+    
+    public void setAuthName(String name) {
+        authName= name;
+    }
+    
+    
+    public String getDirectory() {
+    	return directory;
+    }
+    
+    public String getTyoe() {
+    	return authType;
+    }
+    
+    public String getAuthUserFile () {
+        return authUserFile;
+    }
+    
+    public  ArrayList<String> getRequire() {
+        return require;
+    }
+       
+    public String getAuthName() {
+        return authName;
+    }
+}
+

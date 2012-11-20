@@ -1,0 +1,206 @@
+package webserver;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.*;
+import java.util.Map.Entry;
+
+import webserver.configuration.ConfigVars;
+import webserver.request.HttpReqMsg;
+import webserver.response.HttpRespMsg;
+
+public class CGIHandler {
+
+	private Socket socket;
+	private HttpReqMsg reqMsg;
+	private HttpRespMsg respMsg;
+	private String uri, getArgs = ""; 
+	private String extra = "";
+	private String scriptName;
+
+	private Map<String, String> environments;
+
+	public CGIHandler(Socket socket, HttpReqMsg request, HttpRespMsg response) {
+		this.socket = socket;
+		this.reqMsg = request;
+		this.respMsg = response;
+		this.scriptName = "";
+	}
+
+	public HttpRespMsg buildProcess() {
+		String scriptExePath;
+		ProcessBuilder pb;
+		scriptExePath = "/perl5/bin/perl.exe";
+
+		String path = parseURI();
+
+		// check to see if the resource (script) exists
+		File script = new File(path);
+		if (!script.exists()) {
+			respMsg.setStatusCode("404");
+			respMsg.setDescription("Not Found");
+			respMsg.setBody(new File(ConfigVars.getDocumentRoot()
+					+ "/404.html"));
+		} else {
+			if (script.exists()) {
+				BufferedReader br;
+				try {
+					br = new BufferedReader(new FileReader(script));
+					scriptExePath = br.readLine().replace("#!", "");
+					scriptExePath = scriptExePath.replace("\"", "");
+				} catch (FileNotFoundException e) {
+					System.out.println("Script Not Found!");
+				} catch (IOException e) {
+					System.out.println(e.getMessage());
+				}
+
+			}
+		}
+
+		if (getArgs.trim().length() > 0) {
+			pb = new ProcessBuilder(scriptExePath, scriptName, getArgs);
+		} else {
+			pb = new ProcessBuilder(scriptExePath, scriptName);
+		}
+
+		environments = pb.environment();
+		setEnvVar();
+
+		String directory = "";
+		String[] tempPath = path.split("/");
+		for (int i = 0; i < tempPath.length - 1; i++) {
+			directory = directory + "/" + tempPath[i];
+		}
+
+		pb.directory(new File(directory));
+
+		Process p = null;
+
+		try {
+			p = pb.start();
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		if (reqMsg.getMethodName().equals("POST") && reqMsg.getBody() != null) {
+			sendPostParameters(p);
+		}
+		
+		BufferedInputStream result = new BufferedInputStream(p.getInputStream());
+		
+		
+		
+		
+		return respMsg;
+	}
+
+	private String parseURI() {
+		uri = reqMsg.getURI();
+		getQueryString();
+
+		// check for extra
+		if (uri.contains("extra")) {
+			int index = uri.indexOf("extra");
+			extra = uri.substring(index - 1);
+			uri = uri.substring(0, index - 1);
+			
+		} 
+
+		String temp[] = uri.substring(1).split("/");
+		String path = null;
+		scriptName = temp[temp.length -1];
+		try {
+			path = uri.replace("/" + temp[0],
+					ConfigVars.getScriptAlias("/" + temp[0]));
+		} catch (IndexOutOfBoundsException e) {
+			System.out.println("No ScriptAlias!");
+		}
+		return path;
+	}
+
+	private void getQueryString() {
+		// separate uri and arguments in GET method
+		if (reqMsg.getMethodName().equals("GET") && uri.contains("?")) {
+			int index = uri.indexOf("?");
+			getArgs = uri.substring(index + 1);
+			uri = uri.substring(0, index);
+		}
+	}
+
+	private void setEnvVar() {
+		// Non-request-specific environment variables
+		environments.put("SERVER_SOFTWARE", "CSC867/1.0");
+		environments.put("SERVER_NAME", "sfsu.edu/csc867");
+		environments.put("GATEWAY_INTERFACE", "1.1");
+		// Request-specific environment variables
+		environments.put("SERVER_PROTOCOL", reqMsg.getVersion());
+		environments
+				.put("SERVER_PORT", ConfigVars.getListen());
+		environments.put("REQUEST_METHOD", reqMsg.getMethodName());
+		
+		if (extra.trim().length() > 0) {
+			environments.put("PATH_INFO", extra);
+			environments.put("PATH_TRANSALTED", ConfigVars.getDocumentRoot()
+				+ extra);
+		} else {
+			environments.put("PATH_INFO", "");
+			environments.put("PATH_TRANSALTED", "");
+		}
+		environments.put("SCRIPT_NAME", scriptName);
+		environments.put("QUERY_STRING", getArgs);
+		environments.put("REMOTE_HOST", socket.getLocalAddress()
+				.getCanonicalHostName());
+		environments.put("REMOTE_ADDR", socket.getLocalAddress()
+				.getHostAddress());
+
+		// Request Headers
+		HashMap<String, String> headers = reqMsg.getAllHeaders();
+
+		Iterator<Entry<String, String>> it = headers.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, String> pair = (Map.Entry<String, String>) it
+					.next();
+			if (pair.getKey().equals("Content-Type")) {
+				environments.put("CONTENT_TYPE", pair.getValue());
+			} else {
+				if (pair.getKey().equals("Content-Length")) {
+					environments.put("CONTENT_LENGTH", pair.getValue());
+				} else {
+					if (pair.getKey().equals("Authorization")) {
+
+					} else {
+						String tempName = pair.getKey().toUpperCase();
+						if (tempName.contains("-")) {
+							tempName = tempName.replace("-", "_");
+						}
+						tempName = "HTTP_" + tempName;
+						environments.put(tempName, pair.getValue());
+					}
+				}
+			}
+		}
+	}
+
+	// send post parameters to cgi
+	private void sendPostParameters(Process p) {
+		BufferedOutputStream postParams = new BufferedOutputStream(
+				p.getOutputStream());
+		byte[] body = reqMsg.getBody();
+		int length = Integer.parseInt(environments.get("CONTENT_LENGTH"));
+		try {
+			postParams.write(body, 0, length);
+	        postParams.flush();
+	        postParams.close();      
+		} catch (IOException e) {
+			System.out.println("An error occured when sending post parameters to script!");
+		}
+        
+	}
+
+}

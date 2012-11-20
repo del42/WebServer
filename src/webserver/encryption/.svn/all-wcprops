@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/32/trunk/WebServer/src/webserver/encryption
+END
+Base64Encoder.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/32/trunk/WebServer/src/webserver/encryption/Base64Encoder.java
+END
+Base64Decoder.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/32/trunk/WebServer/src/webserver/encryption/Base64Decoder.java
+END
+Base64FormatException.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/32/trunk/WebServer/src/webserver/encryption/Base64FormatException.java
+END

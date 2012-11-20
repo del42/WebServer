@@ -1,0 +1,22 @@
+<html>
+
+<head> 
+<title> 404 Error </title>
+</head>
+
+<body>
+
+<p>
+<font size="20" face="arial">
+404 Error: Not Found
+</font>
+</p>
+
+<p>
+<font face="arial">
+Sorry! Your page was not found on the server... Check your URI!
+</font>
+</p>
+
+</body>
+</html>

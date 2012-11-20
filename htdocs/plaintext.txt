@@ -1,0 +1,1 @@
+This is the contents of aaa.txt. You may make your program to receive the file name as an argument or through stdI/O, and then read in the file
